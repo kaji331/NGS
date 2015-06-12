@@ -1,0 +1,3 @@
+APP_NAME = Trim
+NP = 1
+RUN = ". ../trim.sh"
