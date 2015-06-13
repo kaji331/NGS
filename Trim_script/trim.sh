@@ -1,7 +1,7 @@
 #!/bin/sh
 
 IFS=$(echo -en "\n\b")
-for i in `ls .. | grep .fastq.gz$`
+for i in `find .. -iname "*.fastq.gz$" -print`
 do
 	name=$(echo $i | sed 's/\.fastq.gz/\_trimmed.fastq.gz/')
 	mkdir -p "../Trimmed"
