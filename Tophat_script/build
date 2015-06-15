@@ -1,0 +1,3 @@
+APP_NAME = pnode
+NP = 1
+RUN = "bowtie2-build /share/home/xierf/Yang_L/Ref_hg38/hg38.fa /share/home/xierf/Yang_L/Ref_hg38/hg38"
