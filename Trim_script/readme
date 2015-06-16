@@ -1,1 +1,3 @@
 将该文件夹放入含有fastq.gz的文件夹中即可
+APP_NAME用bqueues -u username查看，NP选择1
+作业递交：bsub trim
