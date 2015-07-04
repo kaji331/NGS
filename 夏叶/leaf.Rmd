@@ -1,0 +1,213 @@
+---
+title: "leaf"
+author: "kaji331"
+date: "2015年7月3日"
+output: html_document
+---
+
+Saving xlsx to csv, and reading data in R.
+
+```{r, echo=FALSE}
+setwd("~/Projects/NGS/夏叶/")
+data <- read.csv("reads.csv")
+colnames(data) <- c("GeneName","GeneID","pH7.4_control","pH4.8","5%.NaCl","5mM.H2O2")
+data <- data[rowSums(data[,3:6]) != 0,1:6]
+count <- data[,3:6]
+rownames(count) <- data[,2]
+# 分组
+grp <- colnames(count) %>>% as.factor
+pairs(log2(1+count[,order(grp)]), pch=".",lower.panel=NULL)
+```
+
+Creating a DESeqDataSet object and sample desription
+
+```{r, echo=FALSE}
+library(DESeq2)
+sample <- data.frame(SampleName=colnames(count),Target=c("Control","Low_pH","High_Salt","High_Oxygen"))
+rownames(sample) <- sample[,1]
+dds <- DESeqDataSetFromMatrix(count,colData=sample,design=~Target)
+```
+
+Normalization
+
+```{r, echo=FALSE}
+dds <- estimateSizeFactors(dds)
+# 数据分布
+loggeomeans <- rowMeans(log(counts(dds)))
+hist(log(counts(dds)[,1])-loggeomeans,
+     col="grey",main="",xlab="",breaks=40)
+```
+
+Make a matrix of log normalized counts (plus a pseudocount)
+
+```{r, echo=FALSE}
+log.norm.counts <- log2(counts(dds, normalized=TRUE)+1)
+```
+
+Examine the log counts and the log normalized counts (plus a pseudocount)
+
+```{r, echo=FALSE}
+rs <- rowSums(counts(dds))
+par(mfcol=c(1,2))
+# not normalized
+boxplot(log2(counts(dds)[rs>0,]+1))
+# normalized
+boxplot(log.norm.counts[rs>0,])
+```
+
+Stabilizing count variance
+
+```{r, echo=FALSE}
+rld <- rlog(dds)
+```
+
+The principal components (PCA) plot is a useful diagnostic for examining relationships between samples
+
+```{r, echo=FALSE}
+library(ggplot2)
+par(mfcol=c(1,1))
+data <- plotPCA(rld,intgroup=c("Target"), returnData=TRUE)
+percentVar <- 100*round(attr(data,"percentVar"),2)
+makeLab <- function(x,pc) paste0("PC",pc,": ",x,"% variance")
+ggplot(data, aes(PC1,PC2,col=Target)) + geom_point(size=5) +
+  xlab(makeLab(percentVar[1],1)) + ylab(makeLab(percentVar[2],2))
+```
+
+The hierarchical clustering based on Euclidean distance matrix
+
+```{r, echo=FALSE}
+par(mfcol=c(1,1))
+#plot(hclust(dist(t(log.norm.counts))),labels=colData(dds)$Target)
+plot(hclust(dist(t(assay(rld)))),labels=colData(rld)$Target,xlab="Samples",sub="",
+     main="Hierarchical Clustering")
+```
+
+## Differential gene expression
+Experimental design and running DESeq2
+
+```{r, echo=FALSE}
+dds <- DESeq(dds)
+
+res_Low_pH <- results(dds,
+                      contrast=c("Target","Low_pH","Control"),
+                      lfcThreshold=1,alpha=0.05)
+res_High_Salt <- results(dds,
+                         contrast=c("Target","High_Salt","Control"),
+                         lfcThreshold=1,alpha=0.05)
+res_High_Oxygen <- results(dds,
+                           contrast=c("Target","High_Oxygen","Control"),
+                           lfcThreshold=1,alpha=0.05)
+
+res_Low_pH_sort <- res_Low_pH[order(res_Low_pH$pvalue),] %>>%
+  head(table(res_Low_pH$pvalue < 0.1)[2])
+res_High_Salt_sort <- res_High_Salt[order(res_High_Salt$pvalue),] %>>%
+  head(table(res_High_Salt$pvalue < 0.1)[2])
+res_High_Oxygen_sort <- res_High_Oxygen[order(res_High_Oxygen$pvalue),] %>>%
+  head(table(res_High_Oxygen$pvalue < 0.1)[2])
+```
+
+Heatmap
+
+```{r, echo=FALSE}
+library(pheatmap)
+mat_Low_pH <- assay(rld)[rownames(res_Low_pH_sort),]
+mat_Low_pH <- mat_Low_pH - rowMeans(mat_Low_pH)
+mat_High_Salt <- assay(rld)[rownames(res_High_Salt_sort),]
+mat_High_Salt <- mat_High_Salt - rowMeans(mat_High_Salt)
+mat_High_Oxygen <- assay(rld)[rownames(res_High_Oxygen_sort),]
+mat_High_Oxygen <- mat_High_Oxygen - rowMeans(mat_High_Oxygen)
+df <- as.data.frame(colData(dds)[,"Target"])
+
+pheatmap(mat_Low_pH[,1:2], annotation_col=df,
+         main="Target_Low_pH.vs.Control")
+pheatmap(mat_High_Salt[,c(1,3)], annotation_col=df,
+         main="Target_High_Salt.vs.Control")
+pheatmap(mat_Low_pH[,c(1,4)], annotation_col=df,
+         main="Target_High_Oxygen.vs.Control")
+```
+
+GO&KEGG analysis
+
+```{r, echo=FALSE}
+# Re-reading csv of reads and making data.frame
+data <- read.csv("reads.csv")
+colnames(data) <- c("GeneName","GeneID","pH7.4_control","pH4.8","5%.NaCl","5mM.H2O2")
+data <- data[rowSums(data[,3:6]) != 0,1:6]
+
+# # Gene symbols for Enrichr
+# gene_Low_pH <- data[match(rownames(res_Low_pH_sort),as.character(data[,2])),1] %>>% as.character
+# gene_High_Salt <- data[match(rownames(res_High_Salt_sort),as.character(data[,2])),1] %>>% as.character
+# gene_High_Oxygen <- data[match(rownames(res_High_Oxygen_sort),as.character(data[,2])),1] %>>% as.character
+
+# Gene ids for DAVID
+rownames(res_Low_pH_sort)
+rownames(res_High_Salt_sort)
+rownames(res_High_Oxygen_sort)
+
+ego_lowph <- read.table("lowph_go_bp.txt",header=T,sep="\t")
+col <- factor(ego_lowph$PValue)
+levels(col) <- rainbow(length(levels(col)))
+barplot(ego_lowph$Count,names.arg=ego_lowph$Term,main=ego_lowph$Category[1],
+        family="serif",xlim=c(-1,3),ylim=c(0,4),col=col)
+
+ego_lowph <- read.table("lowph_go_cc.txt",header=T,sep="\t")
+col <- factor(ego_lowph$PValue)
+levels(col) <- rainbow(length(levels(col)))
+barplot(ego_lowph$Count,names.arg=ego_lowph$Term,main=ego_lowph$Category[1],
+        family="serif",xlim=c(-1,3),ylim=c(0,4),col=col)
+
+par(mar=c(3,25,2,2))
+ego_highsalt <- read.table("highsalt_go_bp.txt",header=T,sep="\t")
+col <- factor(ego_highsalt$PValue)
+levels(col) <- rainbow(length(levels(col)))
+barplot(ego_highsalt$Count,names.arg=ego_highsalt$Term,main=ego_highsalt$Category[1],
+        family="serif",horiz=T,las=2,col=col)
+
+par(mar=c(3,20,2,2))
+ego_highsalt <- read.table("highsalt_go_mf.txt",header=T,sep="\t")
+col <- factor(ego_highsalt$PValue)
+levels(col) <- rainbow(length(levels(col)))
+barplot(ego_highsalt$Count,names.arg=ego_highsalt$Term,main=ego_highsalt$Category[1],
+        family="serif",horiz=T,las=2,axes=F,xlim=c(0,3),col=col)
+axis(1,at=seq(0,3,1))
+
+par(mar=c(5,8,3,2))
+ekg_highsalt <- read.table("highsalt_kegg.txt",header=T,sep="\t")
+col <- factor(ekg_highsalt$PValue)
+levels(col) <- rainbow(length(levels(col)))
+barplot(ekg_highsalt$Count[2],names.arg=ekg_highsalt$Term[2],
+        main=ekg_highsalt$Category[2],
+        family="serif",xlim=c(-1,3),ylim=c(0,4),col=col[2])
+
+par(mar=c(3,25,2,2))
+ego_highoxygen <- read.table("highoxygen_go_bp.txt",header=T,sep="\t")
+col <- factor(ego_highoxygen$PValue)
+levels(col) <- rainbow(length(levels(col)))
+barplot(ego_highoxygen$Count,names.arg=ego_highoxygen$Term,
+        main=ego_highoxygen$Category[1],
+        family="serif",horiz=T,las=2,col=col)
+
+par(mar=c(3,18,2,2))
+ego_highoxygen <- read.table("highoxygen_go_cc.txt",header=T,sep="\t")
+col <- factor(ego_highoxygen$PValue)
+levels(col) <- rainbow(length(levels(col)))
+barplot(ego_highoxygen$Count,names.arg=ego_highoxygen$Term,
+        main=ego_highoxygen$Category[1],
+        family="serif",horiz=T,las=2,col=col)
+
+par(mar=c(5,20,5,2))
+ego_highoxygen <- read.table("highoxygen_go_mf.txt",header=T,sep="\t")
+col <- factor(ego_highoxygen$PValue)
+levels(col) <- rainbow(length(levels(col)))
+barplot(ego_highoxygen$Count,names.arg=ego_highoxygen$Term,
+        main=ego_highoxygen$Category[1],
+        family="serif",horiz=T,las=2,xlim=c(0,4),col=col)
+
+par(mar=c(5,18,5,2))
+ekg_highoxygen <- read.table("highoxygen_kegg.txt",header=T,sep="\t")
+col <- factor(ekg_highoxygen$PValue)
+levels(col) <- rainbow(length(levels(col)))
+barplot(ekg_highoxygen$Count[c(1,4,5,6)],names.arg=ekg_highoxygen$Term[c(1,4,5,6)],
+        main=ekg_highoxygen$Category[1],
+        family="serif",horiz=T,las=2,xlim=c(0,5),col=col[c(1,4,5,6)])
+```
