@@ -10,7 +10,7 @@ Saving xlsx to csv, and reading data in R.
 ```{r, echo=FALSE}
 setwd("~/Projects/NGS/夏叶/")
 data <- read.csv("reads.csv")
-colnames(data) <- c("GeneName","GeneID","pH7.4_control","pH4.8","5%.NaCl","5mM.H2O2")
+colnames(data) <- c("GeneName","GeneID","pH7.4","pH4.8","5% NaCl","5mM H2O2")
 data <- data[rowSums(data[,3:6]) != 0,1:6]
 count <- data[,3:6]
 rownames(count) <- data[,2]
@@ -47,12 +47,23 @@ log.norm.counts <- log2(counts(dds, normalized=TRUE)+1)
 Examine the log counts and the log normalized counts (plus a pseudocount)
 
 ```{r, echo=FALSE}
+# For LaTeX style annotation
+library(tikzDevice)
 rs <- rowSums(counts(dds))
+tikz("boxplots/boxplots.tex",width=9,height=5,pointsize=12,
+     standAlone=T,bareBones=T,engine="pdftex")
 par(mfcol=c(1,2))
 # not normalized
-boxplot(log2(counts(dds)[rs>0,]+1))
+boxplot(log2(counts(dds)[rs>0,]+1),
+        names=c("pH 7.4","pH 4.8","5\\% NaCl","$\\rm 5mM~H_2O_2$"),
+        las=1,
+        main="Before normalization")
 # normalized
-boxplot(log.norm.counts[rs>0,])
+boxplot(log.norm.counts[rs>0,],
+        names=c("pH 7.4","pH 4.8","5\\% NaCl","$\\rm 5mM~H_2O_2$"),
+        las=1,
+        main="After normalization")
+dev.off()
 ```
 
 Stabilizing count variance
@@ -64,13 +75,20 @@ rld <- rlog(dds)
 The principal components (PCA) plot is a useful diagnostic for examining relationships between samples
 
 ```{r, echo=FALSE}
-library(ggplot2)
+library(cowplot)
+tikz("PCA/PCA.tex",width=6,height=5,pointsize=12,
+     standAlone=T,engine="pdftex")
 par(mfcol=c(1,1))
 data <- plotPCA(rld,intgroup=c("Target"), returnData=TRUE)
 percentVar <- 100*round(attr(data,"percentVar"),2)
-makeLab <- function(x,pc) paste0("PC",pc,": ",x,"% variance")
-ggplot(data, aes(PC1,PC2,col=Target)) + geom_point(size=5) +
-  xlab(makeLab(percentVar[1],1)) + ylab(makeLab(percentVar[2],2))
+makeLab <- function(x,pc) paste0("PC",pc,": ",x,"\\% variance")
+ggplot(data, aes(PC1,PC2,shape=Target)) + geom_point(size=3) +
+  xlab(makeLab(percentVar[1],1)) + ylab(makeLab(percentVar[2],2)) +
+  scale_shape_discrete(name="Treatment",
+                        breaks=c("Control","Low_pH","High_Salt","High_Oxygen"),
+                        labels=c("pH 7.4","pH 4.8","5\\% NaCl","$\\rm 5mM~H_2O_2$")) +
+  background_grid(major="xy",minor="none")
+dev.off()
 ```
 
 The hierarchical clustering based on Euclidean distance matrix
@@ -106,43 +124,94 @@ res_High_Oxygen_sort <- res_High_Oxygen[order(res_High_Oxygen$pvalue),] %>>%
   head(table(res_High_Oxygen$pvalue < 0.1)[2])
 ```
 
-Heatmap
-
-```{r, echo=FALSE}
-library(pheatmap)
-mat_Low_pH <- assay(rld)[rownames(res_Low_pH_sort),]
-mat_Low_pH <- mat_Low_pH - rowMeans(mat_Low_pH)
-mat_High_Salt <- assay(rld)[rownames(res_High_Salt_sort),]
-mat_High_Salt <- mat_High_Salt - rowMeans(mat_High_Salt)
-mat_High_Oxygen <- assay(rld)[rownames(res_High_Oxygen_sort),]
-mat_High_Oxygen <- mat_High_Oxygen - rowMeans(mat_High_Oxygen)
-df <- as.data.frame(colData(dds)[,"Target"])
-
-pheatmap(mat_Low_pH[,1:2], annotation_col=df,
-         main="Target_Low_pH.vs.Control")
-pheatmap(mat_High_Salt[,c(1,3)], annotation_col=df,
-         main="Target_High_Salt.vs.Control")
-pheatmap(mat_Low_pH[,c(1,4)], annotation_col=df,
-         main="Target_High_Oxygen.vs.Control")
-```
-
-GO&KEGG analysis
+VennDiagram & Heatmap
 
 ```{r, echo=FALSE}
 # Re-reading csv of reads and making data.frame
 data <- read.csv("reads.csv")
 colnames(data) <- c("GeneName","GeneID","pH7.4_control","pH4.8","5%.NaCl","5mM.H2O2")
 data <- data[rowSums(data[,3:6]) != 0,1:6]
+```
 
-# # Gene symbols for Enrichr
-# gene_Low_pH <- data[match(rownames(res_Low_pH_sort),as.character(data[,2])),1] %>>% as.character
-# gene_High_Salt <- data[match(rownames(res_High_Salt_sort),as.character(data[,2])),1] %>>% as.character
-# gene_High_Oxygen <- data[match(rownames(res_High_Oxygen_sort),as.character(data[,2])),1] %>>% as.character
+```{r, echo=FALSE,fig.width=5,fig.height=5}
+tikz("Venn/Venn.tex",width=5,height=5,pointsize=12,
+     standAlone=T,engine="pdftex")
+library(VennDiagram)
+draw.triple.venn(area1=26,area2=29,area3=55,n12=1,n23=18,n13=1,n123=0,
+                category=c("pH 4.8","5\\% NaCl","$\\rm 5mM~H_2O_2$"),
+                fill=c("red","yellow","blue"))
+dev.off()
+```
 
-# Gene ids for DAVID
-rownames(res_Low_pH_sort)
-rownames(res_High_Salt_sort)
-rownames(res_High_Oxygen_sort)
+```{r, echo=FALSE}
+library(gplots)
+library(XLConnect)
+library(RColorBrewer)
+mat_Low_pH <- assay(rld)[rownames(res_Low_pH_sort),]
+mat_Low_pH <- mat_Low_pH - rowMeans(mat_Low_pH)
+rownames(mat_Low_pH) <- data[match(rownames(mat_Low_pH),data[,2]),1] %>>% 
+  as.character
+mat_High_Salt <- assay(rld)[rownames(res_High_Salt_sort),]
+mat_High_Salt <- mat_High_Salt - rowMeans(mat_High_Salt)
+rownames(mat_High_Salt) <- data[match(rownames(mat_High_Salt),data[,2]),1] %>>%
+  as.character
+mat_High_Oxygen <- assay(rld)[rownames(res_High_Oxygen_sort),]
+mat_High_Oxygen <- mat_High_Oxygen - rowMeans(mat_High_Oxygen)
+rownames(mat_High_Oxygen) <- data[match(rownames(mat_High_Oxygen),data[,2]),1] %>>%
+  as.character
+
+# reading gene names of 10403s
+gene_Low_pH <- readWorksheetFromFile("xy-不同差异基因for YL-new-0817/Low_pH-fold change-10403S.xlsx",sheet="Sheet1",startRow=1,endRow=27,startCol=2,endCol=4)
+gene_High_Salt <- readWorksheetFromFile("xy-不同差异基因for YL-new-0817/High_Salt-fold change-10403S.xlsx",sheet="Sheet1",startRow=1,endRow=30,startCol=2,endCol=4)
+gene_High_Oxygen <- readWorksheetFromFile("xy-不同差异基因for YL-new-0817/High_Oxygen-fold change-10403S-0807.xlsx",sheet="Sheet1",startRow=1,endRow=56,startCol=2,endCol=4)
+
+# sorting by rownames of mat...
+gene_Low_pH <- gene_Low_pH[order(match(gene_Low_pH[,1],rownames(mat_Low_pH))),]
+gene_High_Salt <- gene_High_Salt[order(match(gene_High_Salt[,1],rownames(mat_High_Salt))),]
+gene_High_Oxygen <- gene_High_Oxygen[order(match(gene_High_Oxygen[,1],rownames(mat_High_Oxygen))),]
+
+
+# special characters for LaTeX
+gene_Low_pH[,3] <- sub("\\_","\\\\\\_",gene_Low_pH[,3])
+gene_High_Salt[,3] <- sub("\\_","\\\\\\_",gene_High_Salt[,3])
+gene_High_Oxygen[,3] <- sub("\\_","\\\\\\_",gene_High_Oxygen[,3])
+
+my_palette <- colorRampPalette(c("green","black","red"))(100)
+tikz("heatmap/pH.tex",width=5,height=7,pointsize=12,
+     standAlone=T,engine="pdftex")
+heatmap.2(mat_Low_pH[,1:2],labCol=c("pH 7.4","pH 4.8"),labRow=gene_Low_pH[,3],
+          trace="none",col=my_palette,srtCol=45,density.info="none",key=F,
+          main="pH 7.4 vs pH 4.8",margins=c(6,7),cexCol=1.5,Colv=F)
+dev.off()
+tikz("heatmap/salt.tex",width=5,height=7,pointsize=12,
+     standAlone=T,engine="pdftex")
+heatmap.2(mat_High_Salt[,c(1,3)],labCol=c("pH 7.4","5\\% NaCl"),labRow=gene_High_Salt[,3],
+          trace="none",col=my_palette,srtCol=45,density.info="none",key=F,
+          main="pH 7.4 vs 5\\% NaCl",margins=c(6,7),cexCol=1.5,Colv=F)
+dev.off()
+tikz("heatmap/oxygen.tex",width=5,height=7,pointsize=12,
+     standAlone=T,engine="pdftex")
+heatmap.2(mat_High_Oxygen[,c(1,4)],labCol=c("pH 7.4","$\\rm 5mM~H_2O_2$"),
+          labRow=gene_High_Oxygen[,3],trace="none",col=my_palette,srtCol=45,
+          density.info="none",key=F,
+          main="pH 7.4 vs $\\rm 5mM~H_2O_2$",margins=c(6,7),cexCol=1.5,Colv=F)
+dev.off()
+```
+
+GO&KEGG analysis
+
+```{r, echo=FALSE}
+# Gene ids for DAVID or Enrichr
+library(XLConnect)
+cbind(rownames(res_Low_pH_sort),rownames(mat_Low_pH),
+      2^res_Low_pH_sort[,2]) %>>% 
+  (writeWorksheetToFile("Low_pH.xlsx",data=.,sheet="Sheet1",startRow=1,startCol=1))
+cbind(rownames(res_High_Salt_sort),rownames(mat_High_Salt),
+      2^res_High_Salt_sort[,2]) %>>% 
+  (writeWorksheetToFile("High_Salt.xlsx",data=.,sheet="Sheet1",startRow=1,startCol=1))
+cbind(rownames(res_High_Oxygen_sort),rownames(mat_High_Oxygen),
+      2^res_High_Oxygen_sort[,2]) %>>% 
+  (writeWorksheetToFile("High_Oxygen.xlsx",data=.,sheet="Sheet1",startRow=1,startCol=1))
 
 ego_lowph <- read.table("lowph_go_bp.txt",header=T,sep="\t")
 col <- factor(ego_lowph$PValue)
@@ -158,10 +227,11 @@ barplot(ego_lowph$Count,names.arg=ego_lowph$Term,main=ego_lowph$Category[1],
 
 par(mar=c(3,25,2,2))
 ego_highsalt <- read.table("highsalt_go_bp.txt",header=T,sep="\t")
-col <- factor(ego_highsalt$PValue)
-levels(col) <- rainbow(length(levels(col)))
-barplot(ego_highsalt$Count,names.arg=ego_highsalt$Term,main=ego_highsalt$Category[1],
-        family="serif",horiz=T,las=2,col=col)
+# col <- factor(ego_highsalt$PValue)
+# levels(col) <- rainbow(length(levels(col)))
+ego_highsalt <- ego_highsalt[order(ego_highsalt$Count),]
+barplot(ego_highsalt$Count,names.arg=ego_highsalt$Term,main="GOTERM_BP",
+        family="serif",horiz=T,las=1,col="black")
 
 par(mar=c(3,20,2,2))
 ego_highsalt <- read.table("highsalt_go_mf.txt",header=T,sep="\t")
@@ -181,19 +251,19 @@ barplot(ekg_highsalt$Count[2],names.arg=ekg_highsalt$Term[2],
 
 par(mar=c(3,25,2,2))
 ego_highoxygen <- read.table("highoxygen_go_bp.txt",header=T,sep="\t")
-col <- factor(ego_highoxygen$PValue)
-levels(col) <- rainbow(length(levels(col)))
-barplot(ego_highoxygen$Count,names.arg=ego_highoxygen$Term,
-        main=ego_highoxygen$Category[1],
-        family="serif",horiz=T,las=2,col=col)
+# col <- factor(ego_highoxygen$PValue)
+# levels(col) <- rainbow(length(levels(col)))
+ego_highoxygen <- ego_highoxygen[order(ego_highoxygen$Count),]
+barplot(ego_highoxygen$Count,names.arg=ego_highoxygen$Term,main="GOTERM_BP",
+        family="serif",horiz=T,las=1,col="black")
 
 par(mar=c(3,18,2,2))
 ego_highoxygen <- read.table("highoxygen_go_cc.txt",header=T,sep="\t")
-col <- factor(ego_highoxygen$PValue)
-levels(col) <- rainbow(length(levels(col)))
-barplot(ego_highoxygen$Count,names.arg=ego_highoxygen$Term,
-        main=ego_highoxygen$Category[1],
-        family="serif",horiz=T,las=2,col=col)
+# col <- factor(ego_highoxygen$PValue)
+# levels(col) <- rainbow(length(levels(col)))
+ego_highoxygen <- ego_highoxygen[order(ego_highoxygen$Count),]
+barplot(ego_highoxygen$Count,names.arg=ego_highoxygen$Term,main="GOTERM_CC",
+        family="serif",horiz=T,las=1,col="black")
 
 par(mar=c(5,20,5,2))
 ego_highoxygen <- read.table("highoxygen_go_mf.txt",header=T,sep="\t")

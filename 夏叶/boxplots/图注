@@ -1,0 +1,1 @@
+After normalization by log2 size factors using DESeq2 pakage, all samples showed approximate median levels. It suggested the method of mormalization could effectively handle the variations among samples.

@@ -1,0 +1,131 @@
+% Created by tikzDevice version 0.8.1 on 2015-08-30 20:40:07
+% !TEX encoding = UTF-8 Unicode
+\documentclass[10pt]{article}
+\usepackage{tikz}
+
+\usepackage[active,tightpage,psfixbb]{preview}
+
+\PreviewEnvironment{pgfpicture}
+
+\setlength\PreviewBorder{0pt}
+\begin{document}
+
+\begin{tikzpicture}[x=1pt,y=1pt]
+\definecolor{fillColor}{RGB}{255,255,255}
+\path[use as bounding box,fill=fillColor,fill opacity=0.00] (0,0) rectangle (361.35,505.89);
+\begin{scope}
+\path[clip] (  0.00,  0.00) rectangle (361.35,505.89);
+\definecolor{drawColor}{RGB}{0,0,0}
+\definecolor{fillColor}{RGB}{0,0,0}
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37, 52.51) rectangle (308.90, 71.81);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37, 75.67) rectangle (308.90, 94.96);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37, 98.82) rectangle (308.90,118.11);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,121.97) rectangle (308.90,141.26);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,145.12) rectangle (311.75,164.41);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,168.27) rectangle (311.75,187.56);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,191.42) rectangle (311.75,210.71);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,214.57) rectangle (311.75,233.86);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,237.72) rectangle (311.75,257.02);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,260.87) rectangle (311.75,280.17);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,284.03) rectangle (317.44,303.32);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,307.18) rectangle (317.44,326.47);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,330.33) rectangle (317.44,349.62);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,353.48) rectangle (325.97,372.77);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,376.63) rectangle (325.97,395.92);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,399.78) rectangle (331.66,419.07);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,422.93) rectangle (331.66,442.22);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round,fill=fillColor] (300.37,446.08) rectangle (337.35,465.38);
+\end{scope}
+\begin{scope}
+\path[clip] (  0.00,  0.00) rectangle (361.35,505.89);
+\definecolor{drawColor}{RGB}{0,0,0}
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00, 58.72) {GO:0006767~water-soluble vitamin metabolic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00, 81.87) {GO:0042364~water-soluble vitamin biosynthetic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,105.02) {GO:0009110~vitamin biosynthetic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,128.17) {GO:0006766~vitamin metabolic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,151.32) {GO:0042439~ethanolamine and derivative metabolic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,174.47) {GO:0006580~ethanolamine metabolic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,197.62) {GO:0006576~biogenic amine metabolic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,220.77) {GO:0006575~cellular amino acid derivative metabolic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,243.93) {GO:0006520~cellular amino acid metabolic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,267.08) {GO:0006066~alcohol metabolic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,290.23) {GO:0044106~cellular amine metabolic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,313.38) {GO:0006519~cellular amino acid and derivative metabolic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,336.53) {GO:0009308~amine metabolic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,359.68) {GO:0044249~cellular biosynthetic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,382.83) {GO:0009058~biosynthetic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,405.98) {GO:0034641~cellular nitrogen compound metabolic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,429.13) {GO:0006807~nitrogen compound metabolic process};
+
+\node[text=drawColor,anchor=base east,inner sep=0pt, outer sep=0pt, scale=  1.00] at (288.00,452.29) {GO:0044237~cellular metabolic process};
+\end{scope}
+\begin{scope}
+\path[clip] (  0.00,  0.00) rectangle (361.35,505.89);
+\definecolor{drawColor}{RGB}{0,0,0}
+
+\node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.20] at (318.67,489.75) {\bfseries GOTERM\_BP};
+\end{scope}
+\begin{scope}
+\path[clip] (  0.00,  0.00) rectangle (361.35,505.89);
+\definecolor{drawColor}{RGB}{0,0,0}
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (300.37, 36.00) -- (334.51, 36.00);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (300.37, 36.00) -- (300.37, 30.00);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (306.06, 36.00) -- (306.06, 30.00);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (311.75, 36.00) -- (311.75, 30.00);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (317.44, 36.00) -- (317.44, 30.00);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (323.13, 36.00) -- (323.13, 30.00);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (328.82, 36.00) -- (328.82, 30.00);
+
+\path[draw=drawColor,line width= 0.4pt,line join=round,line cap=round] (334.51, 36.00) -- (334.51, 30.00);
+
+\node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at (300.37, 14.40) {0};
+
+\node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at (317.44, 14.40) {6};
+
+\node[text=drawColor,anchor=base,inner sep=0pt, outer sep=0pt, scale=  1.00] at (334.51, 14.40) {12};
+\end{scope}
+\end{tikzpicture}
+
+\end{document}

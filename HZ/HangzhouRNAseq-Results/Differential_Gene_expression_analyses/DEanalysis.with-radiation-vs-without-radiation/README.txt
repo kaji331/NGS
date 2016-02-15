@@ -1,0 +1,3 @@
+david_kegg:	所鉴定的差异表达基因用david数据库做了enrichment；显著富集的基因所在的代谢同路可以通过点击网页查看。
+DecreassingFPKM: 所鉴定的表达量随着辐射量增加而递减的基因；
+IncreasingFPKM：所鉴定的表达量随着辐射量增加而减少的基因。

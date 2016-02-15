@@ -1,0 +1,12 @@
+PASS	Basic Statistics	R1504202612_S10_L004_.non-rRNA.1.P.fq.gz
+PASS	Per base sequence quality	R1504202612_S10_L004_.non-rRNA.1.P.fq.gz
+WARN	Per tile sequence quality	R1504202612_S10_L004_.non-rRNA.1.P.fq.gz
+PASS	Per sequence quality scores	R1504202612_S10_L004_.non-rRNA.1.P.fq.gz
+FAIL	Per base sequence content	R1504202612_S10_L004_.non-rRNA.1.P.fq.gz
+FAIL	Per sequence GC content	R1504202612_S10_L004_.non-rRNA.1.P.fq.gz
+PASS	Per base N content	R1504202612_S10_L004_.non-rRNA.1.P.fq.gz
+WARN	Sequence Length Distribution	R1504202612_S10_L004_.non-rRNA.1.P.fq.gz
+FAIL	Sequence Duplication Levels	R1504202612_S10_L004_.non-rRNA.1.P.fq.gz
+WARN	Overrepresented sequences	R1504202612_S10_L004_.non-rRNA.1.P.fq.gz
+PASS	Adapter Content	R1504202612_S10_L004_.non-rRNA.1.P.fq.gz
+WARN	Kmer Content	R1504202612_S10_L004_.non-rRNA.1.P.fq.gz

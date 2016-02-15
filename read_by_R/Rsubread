@@ -1,0 +1,3 @@
+APP_NAME=pnode
+NP=1
+RUN="Rscript --verbose Rsubread.R"
