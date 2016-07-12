@@ -10,5 +10,5 @@ gunzip -c gencode.v19.annotation.gtf.gz \
 # Use bedtools and awk to get intersection of two bed files:
 bedtools intersect -a final_pos.bed -b gencode.exons.hg19.bed -wb \
 	| awk -v OFS="\t" '{print $1,$2,$3,$22}' \
+	| sort -u \
 	> answer.bed
-
