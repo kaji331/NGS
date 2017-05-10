@@ -1,0 +1,3 @@
+region_to_cytoband.sh 在线将染色体区域转成染色体定位
+region_to_cytoband_local.sh 利用UCSC的cytoBand文件实现本地染色体区域转成染色体定位
+cytoband_to_region_local.sh 利用UCSC的cytoBand文件实现本地染色体定位转成染色体区域
